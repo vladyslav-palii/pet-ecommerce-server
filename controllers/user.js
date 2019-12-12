@@ -51,6 +51,13 @@ exports.signin = (req, res) =>{
 
 }
 
+exports.signout = (req, res) =>{
+
+  res.clearCookie('t');
+  res.json({message: "signout success"});
+
+}
+
 // {
 //     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGYyNThlNmJmYmM1MDNhMTg4YTBjNzMiLCJpYXQiOjE1NzYxNzE5Mjh9.4IKaO_HS2D946MXCNJmSNx_HiipRFUrB6BeKkH_7g7Q",
 //     "user": {
