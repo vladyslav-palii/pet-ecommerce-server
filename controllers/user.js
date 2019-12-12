@@ -58,12 +58,7 @@ exports.signout = (req, res) =>{
 
 }
 
-// {
-//     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGYyNThlNmJmYmM1MDNhMTg4YTBjNzMiLCJpYXQiOjE1NzYxNzE5Mjh9.4IKaO_HS2D946MXCNJmSNx_HiipRFUrB6BeKkH_7g7Q",
-//     "user": {
-//         "_id": "5df258e6bfbc503a188a0c73",
-//         "name": "vlad",
-//         "email": "palii.work@gmail.com",
-//         "role": 0
-//     }
-// }
+exports.requireSignin = expressJwt({
+  secret: process.env.JWT_SECRET,
+  userProperty: "auth"
+})
