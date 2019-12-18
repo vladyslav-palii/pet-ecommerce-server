@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cookieyParser = require("cookie-parser");
 const expressValidator = require("express-validator");
+const cors = require("cors");
 
 require("dotenv").config();
 
@@ -26,7 +27,8 @@ mongoose.connect(process.env.DATABASE, {
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(cookieyParser());
-app.use(expressValidator());   
+app.use(expressValidator());
+app.use(cors());
 
 // routes middleware
 app.use("/api", authRoutes);
