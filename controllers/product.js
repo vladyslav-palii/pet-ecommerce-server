@@ -48,12 +48,13 @@ exports.create = (req, res) => {
     if (files.photo) {
       product.photo.data = fs.readFileSync(files.photo.path);
       product.photo.contentType = files.photo.type;
-    }
 
-    if(files.photo.size > 1000000) {
-      return res.status(400).json({
-        error: 'Image should be less than 1mb'
-      })
+      if(files.photo.size > 1000000) {
+        return res.status(400).json({
+          error: 'Image should be less than 1mb'
+        })
+      }
+
     }
 
     product.save((err, result) => {
@@ -163,6 +164,101 @@ exports.update = (req, res) => {
       }
 
       res.send(products);
+
+    })
+
+ }
+
+
+ /**
+  * it will find product based on req product category
+  * other products that has the same category will be returned
+  */
+ exports.listRelated = (req, res) => {
+
+  let limit = req.query.limit ? parseInt(req.query.limit)  : defaultLimit;
+
+  Product.find({ _id: { $ne: req.product }, category: req.product.category })
+  .limit(limit)
+  .populate('category', '_id name')
+  .exec((err, products) => {
+      if (err) {
+          return res.status(400).json({
+              error: 'Products not found'
+          });
+      }
+      res.json(products);
+  });
+
+ }
+
+/**
+ * list products by search
+ * we will implement product search in react frontend
+ * we will show categories in checkbox and price range in radio buttons
+ * as the user clicks on those checkbox and radio buttons
+ * we will make api request and show the products to users based on what he wants
+ */
+
+ exports.listCategories = (req, res) => {
+
+   Product.distinct("category", {}, (err, categories)=>{
+     if(err) {
+       return res.status(400).json({
+         error: "Categories not found"
+       })
+     }
+
+     res.json(categories);
+
+   })
+
+ }
+
+ exports.listBySearch = (req, res) =>{
+
+  let order = req.body.order ? req.body.order : "desc";
+  let sortBy = req.body.sortBy ? req.body.sortBy : "_id";
+  let limit = req.query.limit ? parseInt(req.query.limit)  : defaultLimit;
+  let skip = parseInt(req.body.skip);
+  let findArgs = {};
+
+  //  console.log(order, sortBy, limit, skip, req.body.filter);
+  //  console.log("find args", findArgs)
+
+  for (let key in req.body.filters) {
+    if(req.body.filters[key].length > 0) {
+      if(key === "price") {
+        // gte - greater than price [0-10]
+        // lte - less than price
+        findArgs[key] = {
+          $gte: req.body.filters[key][0],
+          $lte: req.body.filters[key][1] // mongodb kees, like $ne - not including
+        }
+      }
+      else {
+        findArgs[key] = req.body.filters[key];
+      }
+    }
+  }
+
+  Product.find(findArgs)
+    .select("-photo")//remove photo from result
+    .populate("category")
+    .sort([[sortBy, order]])
+    .skip(skip)
+    .limit(limit)
+    .exec((err, data)=>{
+      if(err) {
+        return res.status(400).json({
+          error: "Products not found"
+        })
+      }
+
+      res.json({
+        size: data.length,
+        data
+      })
 
     })
 
