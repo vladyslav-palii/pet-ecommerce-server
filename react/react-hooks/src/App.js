@@ -41,13 +41,15 @@ function App() {
   return (
     <div>
       <h2>News</h2>
-      
+
       {showLoading()}
       {searchForm()}
       {showNews()}
 
     </div>
   );
+
+    // TODO: Refactor to ssr with nextjs for better seo
 
 }
 
